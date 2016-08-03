@@ -11,7 +11,6 @@ function startNewLine(rNum) {
     return polyline;
 }
 
-
 /* Ends the current line
  */
  function endLine(evt) {
@@ -28,10 +27,10 @@ function stopRouteDraw(){
 	map.removeEventListener('dblclick');
 	map.off('mousemove', _onMouseMove);
 	map.off('click', addMarker);
-	$("#add-route").removeClass('icon-click');
+	$("#add-route-button").removeClass('icon-click');
 	$("#map").removeClass("pointing");
 }
-/* Adds a marker to the current route 
+/* Adds a marker to the current route
  * If a marker is clicked (simulates a double click) the route is ended
  */
 function addMarker(evt) {
@@ -39,22 +38,22 @@ function addMarker(evt) {
 	//From http://stackoverflow.com/a/28610565/4047679
 	if (lastClick >= (Date.now() - 20))
     	return;
-	
+
 	lastClick = Date.now();
-	
+
     if (currentLine === null) {
 	}
 	else if (currentLine !== null) {
 
 		var marker = new L.marker(evt.latlng, { draggable:true, icon:circleIcon });
-		
+
 		marker.on('dragend', function() {
 			drawRoute(currentLine);
 		});
 		drawnRoute.addLayer(marker);
 		currentLine.waypoints.push(marker);
 		drawRoute(currentLine);
-        
+
         if(currentLine.waypoints.length >= 1){
             routeDrawTooltip.updateContent({text:"Click to add a another point to your route"});
         }
@@ -66,9 +65,9 @@ function addMarker(evt) {
 //			marker.on('click', endLine);
 			marker.on("dblclick", endLine);
 //			marker.on('contextmenu', endLine);
-//			map.on('contextmenu', endLine);		
-			$("#save").show();
-			$("#save").css({'display':'inline-block'});
+//			map.on('contextmenu', endLine);
+			$("#save-drawing-button").show();
+			$("#save-drawing-button").css({'display':'inline-block'});
 		}
 
 	}
@@ -76,10 +75,10 @@ function addMarker(evt) {
 
 
 function _onMouseMove (e) {
-	var latlng = e.latlng;	
+	var latlng = e.latlng;
 	routeDrawTooltip.updatePosition(latlng);
 }
-        
+
 
 /* Draws the route between a given set of waypoints
  * If there are at least 2 points then a request is sent to the directions api
@@ -94,7 +93,7 @@ function drawRoute(routeToDraw) {
 
 		for (i = 0; i < routeToDraw.waypoints.length - 1; i++) {
 			var lat = routeToDraw.waypoints[i].getLatLng().lat;
-			var lng = routeToDraw.waypoints[i].getLatLng().lng;		
+			var lng = routeToDraw.waypoints[i].getLatLng().lng;
 			waypointsString += lng + "," + lat + ";";
 	  	}
 	  	//accounts for omitting semi-colon
