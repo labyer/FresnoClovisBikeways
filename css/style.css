@@ -103,23 +103,52 @@ iframe {
 .legend-elements {
   font-family: 'Pathway Gothic One', sans-serif;
   font-size: 16px;
-  color: #d1d6d8;
+  color: black;
   text-indent: 55px;
 }
 
 .legend-style {
-  position:absolute;
-  left: 45%;
-  top: 1%;
-  min-width: 100px;
-  min-height: 50px;
-  max-width: 250px;
-  background-color: #00BCD4;
-  border:0px solid #000;
+  position:relative;
+  width: 250px;
+  background-color: white;
+  border:0.5px solid #000;
   padding: 0px 10px;
-  border-radius: 10px;
+  border-radius: 2px;
+  font-size: 16px;
+  padding: 7px;
+  margin: 10px;
 }
 
+
+.bikeway-legend-class1 {
+  position:absolute;
+  left: 5%;
+  top: 15%;
+  background: #258807;
+  width: 30px;
+  height: 5px;
+  border-radius: 0%;
+}
+
+.bikeway-legend-class2 {
+  position:absolute;
+  left: 5%;
+  top: 43%;
+  background: #fa9857;
+  width: 30px;
+  height: 5px;
+  border-radius: 0%;
+}
+
+.bikeway-legend-class3 {
+  position:absolute;
+  left: 5%;
+  top: 72%;
+  background: #9f0909;
+  width: 30px;
+  height: 5px;
+  border-radius: 0%;
+}
 
 
 button {
@@ -148,7 +177,7 @@ button {
   font-size: 16px;
   padding: 7px;
   margin: 10px;
-  width: 230px;
+  width: 250px;
 }
 
 .btn-primary {

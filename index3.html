@@ -61,44 +61,49 @@
 
     <!-- Interaction buttons template (top left) -->
     <script id="hidden-interaction-buttons-template" type="text/x-custom-template">
-      <div id = "add-route-button"
+      <div id = "add-route-button">
         <button type="button" class="btn-danger">
             <span class="glyphicon glyphicon-minus"></span> Add Route
         </button>
       </div>
-      <div id = "add-point-button"
+      <div id = "add-point-button">
         <button type="button" class="btn-danger">
             <span class="glyphicon glyphicon-star"></span> Mark Important Destination
         </button>
       </div>
-      <div id = "add-hazard-button"
+      <div id = "add-hazard-button">
         <button type="button" class="btn-danger">
             <span class="glyphicon glyphicon-exclamation-sign"></span> Mark Hazardous Location
         </button>
       </div>
-      <div id = "cancel-drawing-button"
+      <div id = "cancel-drawing-button">
         <button type="button" class="btn-danger">
-            <span class="glyphicon glyphicon-remove"></span>  Drawing
+            <span class="glyphicon glyphicon-remove"></span> Cancel Drawing
         </button>
       </div>
-      <div id = "save-drawing-button"
+      <div id = "save-drawing-button">
         <button type="button" class="btn-danger">
             <span class="glyphicon glyphicon-floppy-saved"></span> Save Drawing
         </button>
       </div>
+      <div id='existing-bikeways-legend'>
+        <legend class = 'legend-style'>
+          <p class='legend-elements'>Off-Street Path (Class I)</p>
+          <p class='legend-elements'>Bike Lane (Class II)</p>
+          <p class='legend-elements'>Bike Route (Class III)</p>
+          <i class='bikeway-legend-class1'></i>
+          <i class='bikeway-legend-class2'></i>
+          <i class='bikeway-legend-class3'></i>
+        </legend>
+      </div>
     </script>
 
 
-    <!-- Legend - Existing Bikeways -->
-    <legend id='existing-bikeways-legend' class = 'legend-style'>
-      <p class='legend-elements'>Off-Street Path (Class I)</p>
-      <p class='legend-elements'>Bike Lane (Class II)</p>
-      <p class='legend-elements'>Bike Route (Class III)</p>
-    </legend>
+
 
 
     <!-- Legend Image - Existing Bikeways -->
-    <img src="./img/legend/bikeways-legend-01.jpg" alt="Mountain View" style="width:304px;height:228px;">
+    <img src="./img/legend/bikeways-legend-01.jpg" alt="existing-bikeways-legend" style="width:230px;height:110px;">
 
     <!-- Javascript Imports -->
     <script src="js/definitions.js"></script>
@@ -231,7 +236,7 @@
 			   	        dialogGlobal.data('clicked','add-hazard-button').dialog( "open" );
               }
               else if(validInput){
-				            drawingPoints();
+				            drawingHazards();
 			        }
         });
 
@@ -258,8 +263,8 @@
             $("#add-point-button").removeClass('icon-click');
             $("#add-hazard-button").removeClass('icon-click');
             markerDraw = false; routeDraw = false;
-			$("#cancel").hide();
-			$("#save").hide();
+			$("#cancel-drawing-button").hide();
+			$("#save-drawing-button").hide();
 		});
 
 		$("#save").on("click", function(event){
@@ -297,7 +302,7 @@
 					} else if ($(this).data('clicked')=='add-point-button') {
 						drawingPoints();
 					} else if($(this).data('clicked')=='add-hazard-button'){
-						drawingPoints();
+						drawingHazards();
 					}
 			    } else {
                     validInput = false;
@@ -337,7 +342,7 @@
 						drawingPoints();
 					}
           else if($(this).data('clicked')=='add-hazard-button'){
-						drawingPoints();
+						drawingHazards();
 					}
 				}
 				else{
@@ -469,6 +474,14 @@
 		markerDraw = false;
 	}
 
+  function stopDrawingHazards(){
+    $("#add-point-button").removeClass('icon-click');
+    $("#add-hazard-button").removeClass('icon-click');
+    $("#cancel-drawing-button").hide();
+    markerDrawer.disable();
+    markerDraw = false;
+  }
+
 
 
     function setData() {
@@ -510,6 +523,7 @@
                 submittedData.addData(newData);
             });
 			stopDrawingPoints();
+      stopDrawingHazards();
         };
 
         refreshLayer();
