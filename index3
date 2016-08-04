@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<!--Based on https://github.com/mjfoster83/web-map-workshop/blob/master/7_advancedMapping_CartoDB/index-completed.html-->
+<html>
+<head>
+    <meta charset=utf-8 name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Fresno-Clovis Metropolitan Area Class IV Separated Bikeway Feasibility Study</title>
+
+    <link rel="stylesheet" href="./css/leaflet.css"  />
+    <link rel="stylesheet" href="./css/leaflet.draw.css" />
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/leaflet.locatecontrol/0.52.0/L.Control.Locate.mapbox.min.css">
+    <link rel="stylesheet" href="css/label.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="./js/leaflet.js"></script>
+    <script src="https://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
+    <script src="https://cdn.jsdelivr.net/leaflet.locatecontrol/0.52.0/L.Control.Locate.min.js"></script>
+    <script src="js/label.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+</head>
+<body>
+
+    <!-- <section id="survey">
+        <iframe id="survey_form" src="https://docs.google.com/a/altaplanning.com/forms/d/e/1FAIpQLSfwraVj-5JA2JJUuTdVC9hmjXD4oJZ7yMbIXbb6Ziq0r9rG7Q/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    </section> -->
+
+    <section id="wrapper">
+
+        <div id="map" title=""></div>
+
+        <div id="dialogGlobal" title="About You">
+          <form>
+            <fieldset style="border: none;">
+              <ul style="list-style-type: none; padding-left: 0px">
+                <li><label for="username">Please Enter Your First Name</label></li>
+                <li><input type="text" name="username" id="username" placeholder="Enter your name" pattern="[A-Za-z]{3,}" title="Your first name must be at least 3 letters" class="text ui-widget-content ui-corner-all" required></li>
+              </ul>
+            </fieldset>
+          </form>
+        </div>
+
+        <div id="dialog" title="Tell Us About This">
+          <form>
+            <fieldset style="border: none;">
+              <ul style="list-style-type: none; padding-left: 0px">
+                <li><label for="description">About this</label></li>
+    			  <li><textarea type="text" name="description" id="description" rows="3" placeholder="Description for this" class="text ui-widget-content ui-corner-all"></textarea></li>
+              </ul>
+              <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+            </fieldset>
+          </form>
+        </div>
+
+    </section>
+
+    <!-- Interaction buttons template (top left) -->
+    <script id="hidden-interaction-buttons-template" type="text/x-custom-template">
+      <div id = "add-route-button"
+        <button type="button" class="btn-danger">
+            <span class="glyphicon glyphicon-minus"></span> Add Route
+        </button>
+      </div>
+      <div id = "add-point-button"
+        <button type="button" class="btn-danger">
+            <span class="glyphicon glyphicon-star"></span> Mark Important Destination
+        </button>
+      </div>
+      <div id = "add-hazard-button"
+        <button type="button" class="btn-danger">
+            <span class="glyphicon glyphicon-exclamation-sign"></span> Mark Hazardous Location
+        </button>
+      </div>
+      <div id = "cancel-drawing-button"
+        <button type="button" class="btn-danger">
+            <span class="glyphicon glyphicon-remove"></span>  Drawing
+        </button>
+      </div>
+      <div id = "save-drawing-button"
+        <button type="button" class="btn-danger">
+            <span class="glyphicon glyphicon-floppy-saved"></span> Save Drawing
+        </button>
+      </div>
+    </script>
+
+    <legend id='existing-bikeways-legend' class = 'legend-style'>
+      <p class='legend-elements'>Off-Street Path (Class I)</p>
+      <p class='legend-elements'>Bike Lane (Class II)</p>
+      <p class='legend-elements'>Bike Route (Class III)</p>
+    </legend>
+
+    <script src="js/definitions.js"></script>
+    <script src="js/directions.js"></script>
+    <!-- <script src="js/main.js"></script> -->
+    <script src="data/json_bikefacilitiesexp.js"></script>
+	<script src="js/userconfig.js"></script>
+
+    <script>
+
+        // Survey show and hide
+        $(document).on('ready', function() {
+            var counter = 0;
+            $('#survey_form').on('load', function() {
+                if (counter > 0) {
+                    $('#survey').addClass('hide');
+                    window.setTimeout(function() {
+                        $('#survey').addClass('remove');
+                    }, 2000);
+                } else {
+                    counter++;
+                }
+            });
+        });
+
+        <!--L.mapbox.accessToken = config.mapboxAccessToken; -->
+        // Create a map in the div #map
+        var map = L.map('map', {
+            center: config.mapFocus,
+            zoom: 11,
+            minZoom : 4,
+            maxzoom: 20,
+            zoomControl :false
+        });
+        map.touchZoom.enable();
+        L.control.zoom({position : 'bottomleft'}).addTo(map);
+
+        // basemap
+        var basemap = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWx0YXBsYW5uaW5nIiwiYSI6InhqNzQwRW8ifQ.mlA6eN3JguZL_UkEV9WlMA');
+        basemap.addTo(map);
+
+        //Empty to store markers after they are submitted
+        var submittedData = L.geoJson(false, {
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup('<b>' + feature.properties.name + '</b><br>' + feature.properties.description );
+            }
+        }).addTo(map);
+
+		//Bug appeared preventing ending of route drawing.
+		map.doubleClickZoom.disable();
+
+        //	Do nothing on right-click
+		map.on('contextmenu', []);
+
+		//Adding the left Bar of icons as a leaflet control panel
+		var leftBar = L.control({position: 'topleft'});
+
+		//Inspiration: http://stackoverflow.com/a/25764322/4047679
+		//More insiration: http://stackoverflow.com/questions/18673860/defining-a-html-template-to-append-using-jquery
+
+		var hiddenInteractionButtonsTemplate = $('#hidden-interaction-buttons-template').html();
+
+		leftBar.onAdd = function(map) {
+			var div = L.DomUtil.create('div', '');
+			div.id = 'leftBar';
+			div.innerHTML = hiddenInteractionButtonsTemplate;
+			return div;
+		};
+
+		leftBar.addTo(map);
+
+        //Empty to store drawn routes after they are submitted
+        var submittedRoutes = new L.geoJson( false, {
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup('<b>' + feature.properties.name + '</b><br>' + feature.properties.description );
+            },
+            style: function(feature) {
+                /* Styles the submitted route drawing with the same properties as the drawn route as defined by line(id)  in definitions.js */
+                return {
+                    color:feature.properties.color,
+                    weight: feature.properties.weight,
+                    opacity: feature.properties.opacity
+                }
+            }
+        }).addTo(map);
+
+        var drawnMarkers = new L.FeatureGroup();
+		map.addLayer(drawnMarkers);
+        var drawnRoute = new L.FeatureGroup();
+
+        var drawControl = new L.Control.Draw({
+            draw : {
+                polygon : false,
+                polyline : false,
+                rectangle : false,
+                circle : false
+            },
+            edit : false,
+            remove: false
+        });
+
+        markerDrawer =  new L.Draw.Marker(map, drawControl.options.marker);
+
+        map.on('draw:created', function (e) {
+            var layer = e.layer;
+            drawnMarkers.addLayer(layer);
+            dialog.dialog( "open" );
+        });
+
+		/*#left-bar buttons*/
+        /* button that triggers adding a marker */
+        $("#add-point").on("click", function(event){
+			event.stopPropagation();
+			if(validInput===false){
+				dialogGlobal.data('clicked','add-point').dialog( "open" );
+            }
+            else if(validInput){
+				drawingPoints();
+			}
+        });
+
+		/* button that triggers drawing a route */
+        $("#add-route").on("click", function(event) {
+			event.stopPropagation();
+            if(validInput===false){
+				dialogGlobal.data('clicked','add-route').dialog( "open" );
+			}
+            else if(validInput){
+				drawingRoute();
+            }
+        });
+
+		$("#cancel").on("click", function(event){
+			event.stopPropagation();
+			if (routeDraw) {
+                cancelLine();
+            } else if (markerDraw) {
+                markerDrawer.disable();
+            };
+            refreshLayer();
+            $("#add-route").removeClass('icon-click');
+            $("#add-point").removeClass('icon-click');
+            markerDraw = false; routeDraw = false;
+			$("#cancel").hide();
+			$("#save").hide();
+		});
+
+		$("#save").on("click", function(event){
+			event.stopPropagation();
+			dialog.dialog("open");
+		});
+		//Only show when drawing happens
+		$("#cancel").hide();
+		$("#save").hide();
+
+		/*End #left-bar buttons*/
+
+		//Dialog of global user variables
+		dialogGlobal = $( "#dialogGlobal" ).dialog({
+			autoOpen: false,
+			height: 300,
+            width: 350,
+			modal: true,
+			position: {
+				my: "center center",
+				at: "center center",
+				of: "#map"
+			},
+            buttons: [{
+			text: "Submit",
+            click: function() {
+			    var checkedValues = dialogGlobalChecker(username.value);
+			    if (checkedValues.valid) {
+					enteredUsername = "'"+username.value+"'";
+
+					dialogGlobal.dialog("close");
+					validInput = true;
+					if ($(this).data('clicked')=='add-route') {
+						drawingRoute();
+					} else if ($(this).data('clicked')=='add-point') {
+						drawingPoints();
+					}
+			    } else {
+                    validInput = false;
+                    var index;
+                    for (index = 0; index < checkedValues.error.length; ++index) {
+                        alert(checkedValues.error[index]);
+				   }
+			    }
+            },
+			id: "globalAccept"
+		  }],
+		  close: function() {
+
+		  },
+			//Hack to avoid "ENTER" leading to a new page...
+			open: function(){
+				$("#dialogGlobal").keydown(function(e) {
+				  if (e.keyCode == $.ui.keyCode.ENTER) {
+					$("#globalAccept").trigger("click");
+				  }
+				});
+
+			}
+		});
+
+		$("#globalAccept").on("touchstart", function() {
+				var checkedValues = dialogGlobalChecker(username.value);
+				if (checkedValues.valid){
+					enteredUsername = "'"+username.value+"'";
+
+					dialogGlobal.dialog("close");
+					validInput = true;
+					if($(this).data('clicked')=='add-route'){
+						drawingRoute();
+					}
+					else if($(this).data('clicked')=='add-point'){
+						drawingPoints();
+					}
+				}
+				else{
+					validInput = false;
+					var index;
+					for(index = 0; index < checkedValues.error.length; ++index){
+						alert(checkedValues.error[index]);
+					}
+				}
+			});
+
+        /* dialog that appears after finishing a drawing */
+          dialog = $( "#dialog" ).dialog({
+              autoOpen: false,
+              height: 300,
+              width: 350,
+              modal: true,
+              position: {
+                my: "center center",
+                at: "center center",
+                of: "#map"
+            },
+              buttons: [{
+    			  text: "Save Input",
+    			  click : function(){
+    				setData();
+    			  },
+    			  id: "dialogSaveInput"
+    		  },
+    			  {text: "Cancel",
+    			  click: function() {
+                    if(markerDraw){
+                        refreshLayer();
+                        markerDrawer.enable();
+                    }
+                    dialog.dialog("close");
+                }
+              }],
+              close: function() {
+                if(markerDraw){
+                        refreshLayer();
+                        markerDrawer.enable();
+                }
+
+              }
+              , open: function() {
+                  var _title = "Tell us about this";
+                  if (markerDraw){
+                      _title += " location";
+                  }
+                  else if (routeDraw){
+                      _title += " route";
+                  }
+                  $( "#dialog" ).dialog( "option", "title",_title);
+    			  $( "#dialog" ).keydown(function(e) {
+    					  if (e.keyCode == $.ui.keyCode.ENTER) {
+    						$("#dialogSaveInput").trigger("click");
+    					  }
+    					});
+
+              }
+        });
+
+    	function dialogGlobalChecker(name) {
+            var error = [];
+            var valid = true;
+            if(name.length < 2) {
+                error.push("Your name is too short.");
+                valid = false;
+            }
+            return {valid: valid, error: error};
+        }
+
+
+        $(".ui-front").css('z-index','1005');
+
+	//Functions to initiate drawing
+	function drawingRoute(){
+		$("#add-route").addClass('icon-click');
+		$("#add-point").removeClass('icon-click');
+		$("#cancel").show();
+		markerDrawer.disable();
+		refreshLayer();
+		routeDraw = true;
+		markerDraw = false;
+		currentLine = startNewLine(routeNum);
+		map.addLayer(drawnRoute);
+		drawnRoute.addLayer(currentLine.polyline);
+	}
+	function drawingPoints(){
+		if(routeDraw){
+			cancelLine();
+			refreshLayer();
+			routeDraw = false;
+			$("#add-route").removeClass('icon-click');
+			$("#save").hide();
+		};
+		$("#add-point").addClass('icon-click');
+		$("#cancel").show();
+		markerDrawer.enable();
+		markerDraw = true;
+	}
+
+	function stopDrawingPoints(){
+		$("#add-point").removeClass('icon-click');
+		$("#cancel").hide();
+		markerDrawer.disable();
+		markerDraw = false;
+	}
+
+    function setData() {
+        var enteredDescription = "'"+description.value+"'";
+        //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
+
+        var drawing = "";
+
+        if (routeDraw) {
+            var submittedLine = currentLine.polyline.toGeoJSON();
+
+            drawing = "'"+JSON.stringify(submittedLine.geometry)+"'";
+
+            //To ensure that drawn routes remain on map after saving, with popup.
+
+            submittedLine.properties.description = description.value;
+            submittedLine.properties.name = username.value;
+            submittedLine.properties.color = currentLine.polyline.options.color;
+            submittedLine.properties.weight = currentLine.polyline.options.weight;
+            submittedLine.properties.opacity= currentLine.polyline.options.opacity;
+
+            submittedRoutes.addData(submittedLine);
+
+            routeNum ++;
+			stopRouteDraw();
+			$("#cancel").hide();
+			$("#save").hide();
+		};
+
+        if(markerDraw){
+            drawnMarkers.eachLayer(function (layer) {
+                //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
+                var newData = layer.toGeoJSON();
+                drawing = "'"+JSON.stringify(newData.geometry)+"'";
+
+                // Transfer drawing to the CartoDB layer
+                newData.properties.description = description.value;
+                newData.properties.name = username.value;
+                submittedData.addData(newData);
+            });
+			stopDrawingPoints();
+        };
+
+        refreshLayer();
+        //Ensures that drawn routes stay on the map.
+        if(routeDraw){submittedRoutes.eachLayer( function(layer){layer.addTo(map);});};
+
+        //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
+        var sql = "SELECT "+ config.cartoDBinsertfunction +"(";
+            sql += drawing;
+            sql += "," + enteredDescription;
+            sql += "," + enteredUsername + ");";
+
+        // console.log(sql); //For testing
+
+        //Sending the data
+        $.ajax({
+            type: 'POST',
+            url: 'https://' + config.cartoDBusername + '.carto.com/api/v2/sql',
+            crossDomain: true,
+            data: {"q":sql},
+            dataType: 'json',
+            success: function(responseData, textStatus, jqXHR) {
+                console.log("Data saved");
+            },
+            error: function (responseData, textStatus, errorThrown) {
+                console.log(responseData);
+                console.log(errorThrown);
+            }
+          });
+
+            dialog.dialog("close");
+        };
+
+        /*  QGIS layer*/
+        var layerOrder = new Array();
+        var feature_group = new L.featureGroup([]);
+        function stackLayers() {
+            for (index = 0; index < layerOrder.length; index++) {
+                map.removeLayer(layerOrder[index]);
+                map.addLayer(layerOrder[index]);
+            }
+        }
+        function restackLayers() {
+            for (index = 0; index < layerOrder.length; index++) {
+                layerOrder[index].bringToFront();
+            }
+        }
+        map.on('overlayadd', restackLayers);
+        layerControl = L.control.layers({},{},{collapsed:false});
+
+        // stackLayers();
+
+        var deviceIsMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent);
+
+		/*Geolocator, activate only on mobile
+		http://stackoverflow.com/a/26577897/4047679*/
+		if (deviceIsMobile) {
+			L.control.locate({
+				position: 'topright',
+				icon: 'fa fa-crosshairs',
+				locateOptions: {maxZoom: 20}
+			}).addTo(map);
+		}
+
+        function refreshLayer() {
+
+            if(markerDraw){
+                map.removeLayer(drawnMarkers);
+                drawnMarkers = new L.FeatureGroup();
+            }else if(routeDraw){
+                map.removeLayer(drawnRoute);
+                drawnRoute = new L.FeatureGroup();
+            }
+        };
+
+    </script>
+  </body>
+</html>
