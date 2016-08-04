@@ -88,6 +88,7 @@
       </div>
     </script>
 
+    <!-- Legend - Existing Bikeways-->
     <legend id='existing-bikeways-legend' class = 'legend-style'>
       <p class='legend-elements'>Off-Street Path (Class I)</p>
       <p class='legend-elements'>Bike Lane (Class II)</p>
@@ -121,16 +122,16 @@
         // Create a map in the div #map
         var map = L.map('map', {
             center: config.mapFocus,
-            zoom: 11,
-            minZoom : 4,
+            zoom: 12,
+            minZoom : 10,
             maxzoom: 20,
-            zoomControl :false
+            zoomControl: false
         });
         map.touchZoom.enable();
         L.control.zoom({position : 'bottomleft'}).addTo(map);
 
         // basemap
-        var basemap = L.tileLayer('https://api.mapbox.com/styles/v1/fresnoclovisbikeways/cirf6hz740000gam1cxr9rtn4/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZnJlc25vY2xvdmlzYmlrZXdheXMiLCJhIjoiY2lyZjZnaTdkMDA4NWc1bmtyYjkwdWNxMCJ9.MgEvAEqv0bAbseOI6cCCOg');
+        var basemap = L.tileLayer('https://api.mapbox.com/styles/v1/fresnoclovisbikeways/cirgcbfqa0001ginqv2tizy9b/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZnJlc25vY2xvdmlzYmlrZXdheXMiLCJhIjoiY2lyZjZnaTdkMDA4NWc1bmtyYjkwdWNxMCJ9.MgEvAEqv0bAbseOI6cCCOg');
         basemap.addTo(map);
 
         //Empty to store markers after they are submitted

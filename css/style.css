@@ -101,7 +101,7 @@ iframe {
 }
 
 .legend-elements {
-  font-family: 'garamond';
+  font-family: 'Pathway Gothic One', sans-serif;
   font-size: 16px;
   color: #d1d6d8;
   text-indent: 55px;
@@ -113,8 +113,9 @@ iframe {
   top: 1%;
   min-width: 100px;
   min-height: 50px;
-  background-color: #0d1c1c;
-  border:1px solid #000;
+  max-width: 250px;
+  background-color: #00BCD4;
+  border:0px solid #000;
   padding: 0px 10px;
   border-radius: 10px;
 }
