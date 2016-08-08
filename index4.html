@@ -38,19 +38,62 @@
           <form>
             <fieldset style="border: none;">
               <ul style="list-style-type: none; padding-left: 0px">
-                <li><label for="username">Please Enter Your First Name</label></li>
-                <li><input type="text" name="username" id="username" placeholder="Enter your name" pattern="[A-Za-z]{3,}" title="Your first name must be at least 3 letters" class="text ui-widget-content ui-corner-all" required></li>
+                <li><label for="username">Please Enter Your Home Zip Code</label></li>
+                <li><input type="text" name="username" id="username" placeholder="Zip Code" pattern="[0,9]" title="Your zip code must be 5 characters" class="text ui-widget-content ui-corner-all" required></li>
+                <br>
+                <li><font size="2">Zip codes will help us understand different preferences among residents from different neighborhoods. If you wish not to share your zip code please enter 00000.</li>
               </ul>
             </fieldset>
           </form>
         </div>
 
+
         <div id="dialog" title="Tell Us About This">
           <form>
             <fieldset style="border: none;">
               <ul style="list-style-type: none; padding-left: 0px">
-                <li><label for="description">About this</label></li>
-    			  <li><textarea type="text" name="description" id="description" rows="3" placeholder="Description for this" class="text ui-widget-content ui-corner-all"></textarea></li>
+                <li><label for="description">How is this route hazard important to you?</label></li>
+                <li><textarea type="text" name="description" id="description" rows="3" placeholder="Click here to write" class="text ui-widget-content ui-corner-all"></textarea></li>
+              </ul>
+              <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+            </fieldset>
+          </form>
+        </div>
+
+
+        <div id="dialogRoute" title="Tell Us About This">
+          <form>
+            <fieldset style="border: none;">
+              <ul style="list-style-type: none; padding-left: 0px">
+                <li><label for="descriptionRoute">How is this route important to you?</label></li>
+    			      <li><textarea type="text" name="descriptionRoute" id="descriptionRoute" rows="3" placeholder="Click here to write" class="text ui-widget-content ui-corner-all"></textarea></li>
+              </ul>
+              <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+            </fieldset>
+          </form>
+        </div>
+
+
+        <div id="dialogPOI" title="Tell Us About This">
+          <form>
+            <fieldset style="border: none;">
+              <ul style="list-style-type: none; padding-left: 0px">
+                <li><label for="descriptionPOI">How is this destination important to you?</label></li>
+    			      <li><textarea type="text" name="descriptionPOI" id="descriptionPOI" rows="3" placeholder="Click here to write" class="text ui-widget-content ui-corner-all"></textarea></li>
+              </ul>
+              <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+            </fieldset>
+          </form>
+        </div>
+
+
+
+        <div id="dialogHazard" title="Tell Us About This">
+          <form>
+            <fieldset style="border: none;">
+              <ul style="list-style-type: none; padding-left: 0px">
+                <li><label for="descriptionHazard">How is this route hazard important to you?</label></li>
+    			      <li><textarea type="text" name="descriptionHazard" id="descriptionHazard" rows="3" placeholder="Click here to write" class="text ui-widget-content ui-corner-all"></textarea></li>
               </ul>
               <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
             </fieldset>
@@ -62,32 +105,33 @@
     <!-- Interaction buttons template (top left) -->
     <script id="hidden-interaction-buttons-template" type="text/x-custom-template">
       <div id = "add-route-button">
-        <button type="button" class="btn-danger">
-            <span class="glyphicon glyphicon-minus"></span> Add Preferred Bikeway
+        <button type="button" class="input-buttons">
+            <img src="img/LineSwatch2.png">     Draw Preferred Route for Separated Bikeway
         </button>
       </div>
       <div id = "add-point-button">
-        <button type="button" class="btn-danger">
-            <span class="glyphicon glyphicon-star"></span> Mark Important Destination
+        <button type="button" class="input-buttons">
+            <img src="img/POIMarker.png"></span>     Mark Important Destination
         </button>
       </div>
       <div id = "add-hazard-button">
-        <button type="button" class="btn-danger">
-            <span class="glyphicon glyphicon-exclamation-sign"></span> Mark Hazardous Location
+        <button type="button" class="input-buttons">
+            <img src="img/WarningMarker.png"></span>     Mark Hazardous Location
         </button>
       </div>
       <div id = "cancel-drawing-button">
-        <button type="button" class="btn-danger">
+        <button type="button" class="input-buttons">
             <span class="glyphicon glyphicon-remove"></span> Cancel Drawing
         </button>
       </div>
       <div id = "save-drawing-button">
-        <button type="button" class="btn-danger">
-            <span class="glyphicon glyphicon-floppy-saved"></span> Save Preferred Bikeway
+        <button type="button" class="input-buttons">
+            <span class="glyphicon glyphicon-floppy-saved"></span> Save Drawing
         </button>
       </div>
       <div id='existing-bikeways-legend'>
         <legend class = 'legend-style'>
+          <label><font size="4">Existing Bikeways</label>
           <p class='legend-elements'>Off-Street Path (Class I)</p>
           <p class='legend-elements'>Bike Lane (Class II)</p>
           <p class='legend-elements'>Bike Route (Class III)</p>
@@ -111,7 +155,6 @@
 
     <!-- Javascript Code -->
     <script>
-
         // Survey show and hide
         $(document).on('ready', function() {
             var counter = 0;
@@ -126,7 +169,6 @@
                 }
             });
         });
-
         // L.mapbox.accessToken = config.mapboxAccessToken;
         // Create a map in the div #map
         var map = L.map('map', {
@@ -137,12 +179,10 @@
             zoomControl: false
         });
         map.touchZoom.enable();
-        L.control.zoom({position : 'bottomleft'}).addTo(map);
-
+        L.control.zoom({position : 'topright'}).addTo(map);
         // basemap
         var basemap = L.tileLayer('https://api.mapbox.com/styles/v1/fresnoclovisbikeways/cirgcbfqa0001ginqv2tizy9b/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZnJlc25vY2xvdmlzYmlrZXdheXMiLCJhIjoiY2lyZjZnaTdkMDA4NWc1bmtyYjkwdWNxMCJ9.MgEvAEqv0bAbseOI6cCCOg');
         basemap.addTo(map);
-
         //Empty to store markers after they are submitted
         var submittedData = L.geoJson(false, {
             onEachFeature: function (feature, layer) {
@@ -150,33 +190,52 @@
             }
         }).addTo(map);
 
+
+        var drawnPOIMarkers;
+          // drawnPOIMarkers = L.geoJson(submittedData, {
+          //   pointToLayer: function(feature, latlng) {
+          //     var POIMarkerIcon = new L.icon({
+          //         iconUrl: 'img/POIMarker.png',
+          //         shadowUrl: 'img/marker-shadow.png',
+          //         iconSize:     [38, 95], // size of the icon
+          //         shadowSize:   [50, 64], // size of the shadow
+          //         iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+          //         shadowAnchor: [4, 62],  // the same for the shadow
+          //         popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+          //     });
+          //     return L.marker(latlng, {icon: POIMarkerIcon});
+          //   },
+          //   onEachFeature: function (feature, layer) {
+          //     layer.bindPopup('<b>' + feature.properties.description );
+          //   }
+          // })
+          //
+          // drawnPOIMarkers.addTo(markers.addTo(map))
+
+
+
+
+
 		//Bug appeared preventing ending of route drawing.
 		map.doubleClickZoom.disable();
-
         //	Do nothing on right-click
 		map.on('contextmenu', []);
-
 		//Adding the left Bar of icons as a leaflet control panel
 		var leftBar = L.control({position: 'topleft'});
-
 		//Inspiration: http://stackoverflow.com/a/25764322/4047679
 		//More insiration: http://stackoverflow.com/questions/18673860/defining-a-html-template-to-append-using-jquery
-
 		var hiddenInteractionButtonsTemplate = $('#hidden-interaction-buttons-template').html();
-
 		leftBar.onAdd = function(map) {
 			var div = L.DomUtil.create('div', '');
 			div.id = 'leftBar';
 			div.innerHTML = hiddenInteractionButtonsTemplate;
 			return div;
 		};
-
 		leftBar.addTo(map);
-
         //Empty to store drawn routes after they are submitted
         var submittedRoutes = new L.geoJson( false, {
             onEachFeature: function (feature, layer) {
-                layer.bindPopup('<b>' + feature.properties.description );
+                layer.bindPopup('<b>' + 'Routes: ' + '<b>'+ feature.properties.descriptionRoute );
             },
             style: function(feature) {
                 /* Styles the submitted route drawing with the same properties as the drawn route as defined by line(id)  in definitions.js */
@@ -187,116 +246,73 @@
                 }
             }
         }).addTo(map);
-
-
-
-
-
-        //MARKER STYLES
-        //point marker -  green
-        var pointMarkerStyle =  {
-           radius: 10,
-           fillColor: '#38C612',
-           weight: 0,
-           fillOpacity: 1
-        };
-        //hazard marker - red
-        var hazardMarkerStyle =  {
-           radius: 10,
-           fillColor: "#C51127",
-           weight: 0,
-           fillOpacity: 1
-        };
-
-        //point to layer - point marker
-        var pointToLayer_pointMarker = function (feature, latlng) {
-          return L.circleMarker(latlng, pointMarkerStyle);
-        };
-        //point to layer - hazard marker
-        var pointToLayer_hazardMarker = function (feature, latlng) {
-          return L.circleMarker(latlng, hazardMarkerStyle);
-        };
-
-
-
-
-
         var drawnMarkers = new L.FeatureGroup();
 		map.addLayer(drawnMarkers);
-        var drawnHazards = new L.FeatureGroup();
-    map.addLayer(drawnHazards);
         var drawnRoute = new L.FeatureGroup();
-
         var drawControl = new L.Control.Draw({
             draw : {
                 polygon : false,
                 polyline : false,
                 rectangle : false,
-                circle : false
+                circle : false,
+                marker: {
+                  icon: new L.DivIcon({
+                      iconUrl: 'img/POIMarker.png',
+                  		shadowUrl: 'img/marker-shadow.png',
+                  		iconSize:     [38, 95], // size of the icon
+                      shadowSize:   [50, 64], // size of the shadow
+                      iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+                      shadowAnchor: [4, 62],  // the same for the shadow
+                      popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+                  })
+                }
             },
             edit : false,
             remove: false
         });
-
         markerDrawer =  new L.Draw.Marker(map, drawControl.options.marker);
-        hazardDrawer =  new L.Draw.Marker(map, drawControl.options.hazard);
-
         map.on('draw:created', function (e) {
             var layer = e.layer;
             drawnMarkers.addLayer(layer);
             dialog.dialog( "open" );
         });
-
-
-
-
 		/*#left-bar buttons*/
         /* button that triggers adding a destination */
         $("#add-point-button").on("click", function(event){
 			       event.stopPropagation();
-             drawingPoints();
-			      //  if(validInput===false){
-            //       logGlobal.data('clicked','add-point-button').dialog( "open" );
-            //   }
-            //   else if(validInput){
-				    //         drawingPoints();
-			      //   }
+			       if(validInput===false){
+			   	        dialogGlobal.data('clicked','add-point-button').dialog( "open" );
+              }
+              else if(validInput){
+				            drawingPoints();
+			        }
         });
-
-
-
         /* button that triggers adding a hazard */
         $("#add-hazard-button").on("click", function(event){
 			       event.stopPropagation();
-             drawingHazards();
-			      //  if(validInput===false){
-			   	    //     dialogGlobal.data('clicked','add-hazard-button').dialog( "open" );
-            //   }
-            //   else if(validInput){
-				    //         drawingHazards();
-			      //   }
+			       if(validInput===false){
+			   	        dialogGlobal.data('clicked','add-hazard-button').dialog( "open" );
+              }
+              else if(validInput){
+				            drawingHazards();
+			        }
         });
-
 		/* button that triggers drawing a route */
         $("#add-route-button").on("click", function(event) {
-			       event.stopPropagation();
-             drawingRoute();
-      //       if(validInput===false){
-			// 	dialogGlobal.data('clicked','add-route-button').dialog( "open" );
-			// }
-      //       else if(validInput){
-			// 	drawingRoute();
-      //       }
+			event.stopPropagation();
+            if(validInput===false){
+				dialogGlobal.data('clicked','add-route-button').dialog( "open" );
+			}
+            else if(validInput){
+				drawingRoute();
+            }
         });
-
 		$("#cancel-drawing-button").on("click", function(event){
 			event.stopPropagation();
 			if (routeDraw) {
                 cancelLine();
             } else if (markerDraw) {
                 markerDrawer.disable();
-            }else if (hazardDraw) {
-                hazardDrawer.disable();
             };
             refreshLayer();
             $("#add-route-button").removeClass('icon-click');
@@ -306,7 +322,6 @@
 			$("#cancel-drawing-button").hide();
 			$("#save-drawing-button").hide();
 		});
-
 		$("#save-drawing-button").on("click", function(event){
 			event.stopPropagation();
 			dialog.dialog("open");
@@ -314,88 +329,138 @@
 		//Only show when drawing happens
     $("#cancel-drawing-button").hide();
 		$("#save-drawing-button").hide();
-
 		/*End #left-bar buttons*/
+		//Dialog of global user variables
+		dialogGlobal = $( "#dialogGlobal" ).dialog({
+			autoOpen: false,
+			height: 300,
+            width: 350,
+			modal: true,
+			position: {
+				my: "center center",
+				at: "center center",
+				of: "#map"
+			},
+            buttons: [{
+			text: "Submit",
+            click: function() {
+			    var checkedValues = dialogGlobalChecker(username.value);
+			    if (checkedValues.valid) {
+					enteredUsername = "'"+username.value+"'";
+					dialogGlobal.dialog("close");
+					validInput = true;
+					if ($(this).data('clicked')=='add-route-button') {
+						drawingRoute();
+					} else if ($(this).data('clicked')=='add-point-button') {
+						drawingPoints();
+					} else if($(this).data('clicked')=='add-hazard-button'){
+						drawingHazards();
+					}
+			    } else {
+                    validInput = false;
+                    var index;
+                    for (index = 0; index < checkedValues.error.length; ++index) {
+                        alert(checkedValues.error[index]);
+				   }
+			    }
+            },
+			id: "globalAccept"
+		  }],
+		  close: function() {
+		  },
+			//Hack to avoid "ENTER" leading to a new page...
+			open: function(){
+				$("#dialogGlobal").keydown(function(e) {
+				  if (e.keyCode == $.ui.keyCode.ENTER) {
+					$("#globalAccept").trigger("click");
+				  }
+				});
+			}
+		});
+		$("#globalAccept").on("touchstart", function() {
+				var checkedValues = dialogGlobalChecker(username.value);
+				if (checkedValues.valid){
+					enteredUsername = "'"+username.value+"'";
+					dialogGlobal.dialog("close");
+					validInput = true;
+					if($(this).data('clicked')=='add-route-button'){
+						drawingRoute();
+					}
+					else if($(this).data('clicked')=='add-point-button'){
+						drawingPoints();
+					}
+          else if($(this).data('clicked')=='add-hazard-button'){
+						drawingHazards();
+					}
+				}
+				else{
+					validInput = false;
+					var index;
+					for(index = 0; index < checkedValues.error.length; ++index){
+						alert(checkedValues.error[index]);
+					}
+				}
+			});
 
-		// //Dialog of global user variables
-		// dialogGlobal = $( "#dialogGlobal" ).dialog({
-		// 	autoOpen: false,
-		// 	height: 300,
-    //         width: 350,
-		// 	modal: true,
-		// 	position: {
-		// 		my: "center center",
-		// 		at: "center center",
-		// 		of: "#map"
-		// 	},
-    //         buttons: [{
-		// 	text: "Submit",
-    //         click: function() {
-		// 	    // var checkedValues = dialogGlobalChecker(username.value);
-		// 	    // if (checkedValues.valid) {
-		// 			// enteredUsername = "'"+username.value+"'";
-    //       //
-		// 			// dialogGlobal.dialog("close");
-		// 			// validInput = true;
-		// 			if ($(this).data('clicked')=='add-route-button') {
-		// 				drawingRoute();
-		// 			} else if ($(this).data('clicked')=='add-point-button') {
-		// 				drawingPoints();
-		// 			} else if($(this).data('clicked')=='add-hazard-button'){
-		// 				drawingHazards();
-		// 			}
-		// 	    // } else {
-    //       //           validInput = false;
-    //       //           var index;
-    //       //           for (index = 0; index < checkedValues.error.length; ++index) {
-    //       //               alert(checkedValues.error[index]);
-		// 		  //  }
-		// 	    // }
-    //         },
-		// 	id: "globalAccept"
-		//   }],
-		//   close: function() {
-    //
-		//   },
-		// 	//Hack to avoid "ENTER" leading to a new page...
-		// 	open: function(){
-		// 		$("#dialogGlobal").keydown(function(e) {
-		// 		  if (e.keyCode == $.ui.keyCode.ENTER) {
-		// 			$("#globalAccept").trigger("click");
-		// 		  }
-		// 		});
-    //
-		// 	}
-		// });
-    //
-		// $("#globalAccept").on("touchstart", function() {
-		// 		// var checkedValues = dialogGlobalChecker(username.value);
-		// 		// if (checkedValues.valid){
-		// 		// 	enteredUsername = "'"+username.value+"'";
-    //     //
-		// 		// 	dialogGlobal.dialog("close");
-		// 		// 	validInput = true;
-		// 			if($(this).data('clicked')=='add-route-button'){
-		// 				drawingRoute();
-		// 			}
-		// 			else if($(this).data('clicked')=='add-point-button'){
-		// 				drawingPoints();
-		// 			}
-    //       else if($(this).data('clicked')=='add-hazard-button'){
-		// 				drawingHazards();
-		// 			}
-		// 		// }
-		// 		// else{
-		// 		// 	validInput = false;
-		// 		// 	var index;
-		// 		// 	for(index = 0; index < checkedValues.error.length; ++index){
-		// 		// 		alert(checkedValues.error[index]);
-		// 		// 	}
-		// 		// }
-		// 	});
 
-        /* dialog that appears after finishing a drawing */
-          dialog = $( "#dialog" ).dialog({
+
+        // /* dialog that appears after finishing a drawing */
+        //   dialog = $( "#dialog" ).dialog({
+        //       autoOpen: false,
+        //       height: 300,
+        //       width: 350,
+        //       modal: true,
+        //       position: {
+        //         my: "center center",
+        //         at: "center center",
+        //         of: "#map"
+        //     },
+        //       buttons: [{
+    		// 	  text: "Save Input",
+    		// 	  click : function(){
+    		// 		setData();
+    		// 	  },
+    		// 	  id: "dialogSaveInput"
+    		//   },
+    		// 	  {text: "Cancel",
+    		// 	  click: function() {
+        //             if(markerDraw){
+        //                 refreshLayer();
+        //                 markerDrawer.enable();
+        //             }
+        //             dialog.dialog("close");
+        //         }
+        //       }],
+        //       close: function() {
+        //         if(markerDraw){
+        //                 refreshLayer();
+        //                 markerDrawer.enable();
+        //         }
+        //       }
+        //       , open: function() {
+        //           var _title = "Tell us about this";
+        //           if (markerDraw){
+        //               _title += " location";
+        //           }
+        //           else if (routeDraw){
+        //               _title += " route";
+        //           }
+        //           $( "#dialog" ).dialog( "option", "title",_title);
+    		// 	  $( "#dialog" ).keydown(function(e) {
+    		// 			  if (e.keyCode == $.ui.keyCode.ENTER) {
+    		// 				$("#dialogSaveInput").trigger("click");
+    		// 			  }
+    		// 			});
+        //       }
+        // });
+
+
+
+
+
+
+        /* dialog that appears after finishing a route */
+          dialog = $( "#dialogRoute" ).dialog({
               autoOpen: false,
               height: 300,
               width: 350,
@@ -406,21 +471,17 @@
                 of: "#map"
             },
               buttons: [{
-    			  text: "Save Input",
-    			  click : function(){
-    				setData();
-    			  },
-    			  id: "dialogSaveInput"
-    		  },
-    			  {text: "Cancel",
-    			  click: function() {
+            text: "Save Input",
+            click : function(){
+            setData();
+            },
+            id: "dialogRouteSaveInput"
+          },
+            {text: "Cancel",
+            click: function() {
                     if(markerDraw){
                         refreshLayer();
                         markerDrawer.enable();
-                    }
-                    else if (hazardDraw){
-                      refreshLayer();
-                      hazardDrawer.enable();
                     }
                     dialog.dialog("close");
                 }
@@ -430,45 +491,69 @@
                         refreshLayer();
                         markerDrawer.enable();
                 }
-                else if (hazardDraw){
-                  refreshLayer();
-                  hazardDrawer.enable();
-                }
               }
               , open: function() {
                   var _title = "Tell us about this";
                   if (markerDraw){
-                      _title += " destination";
-                  }
-                  else if (hazardDraw){
-                      _title += " hazard";
+                      _title += " location";
                   }
                   else if (routeDraw){
-                      _title += " preferred bikeway";
+                      _title += " route";
                   }
-                  $( "#dialog" ).dialog( "option", "title",_title);
-    			  $( "#dialog" ).keydown(function(e) {
-    					  if (e.keyCode == $.ui.keyCode.ENTER) {
-    						$("#dialogSaveInput").trigger("click");
-    					  }
-    					});
-
+                  $( "#dialogRoute" ).dialog( "option", "title",_title);
+            $( "#dialogRoute" ).keydown(function(e) {
+                if (e.keyCode == $.ui.keyCode.ENTER) {
+                $("#dialogRouteSaveInput").trigger("click");
+                }
+              });
               }
         });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     	function dialogGlobalChecker(name) {
             var error = [];
             var valid = true;
-            if(name.length < 2) {
-                error.push("Your name is too short.");
+            if(name.length < 5) {
+                error.push("Your zip code is too short.");
                 valid = false;
+            } else if (name.length > 5) {
+              error.push("Your zip code is too long.");
+              valid = false;
             }
             return {valid: valid, error: error};
         }
-
-
         $(".ui-front").css('z-index','1005');
-
 	//Functions to initiate drawing
 	function drawingRoute(){
     $("#add-route-button").addClass('icon-click');
@@ -476,11 +561,9 @@
     $("#add-hazard-button").removeClass('icon-click');
 		$("#cancel-drawing-button").show();
 		markerDrawer.disable();
-    hazardDrawer.disable();
 		refreshLayer();
 		routeDraw = true;
 		markerDraw = false;
-    hazardDraw = false;
 		currentLine = startNewLine(routeNum);
 		map.addLayer(drawnRoute);
 		drawnRoute.addLayer(currentLine.polyline);
@@ -500,7 +583,6 @@
 		markerDrawer.enable();
 		markerDraw = true;
 	}
-
   function drawingHazards(){
       if(routeDraw){
         cancelLine();
@@ -513,11 +595,9 @@
       $("#add-hazard-button").addClass('icon-click');
       $("#add-point-button").removeClass('icon-click');
       $("#cancel-drawing-button").show();
-      hazardDrawer.enable();
-      hazardDraw = true;
+      markerDrawer.enable();
+      markerDraw = true;
     }
-
-
   function stopDrawingPoints(){
     $("#add-point-button").removeClass('icon-click');
     $("#add-hazard-button").removeClass('icon-click');
@@ -525,71 +605,57 @@
 		markerDrawer.disable();
 		markerDraw = false;
 	}
-
   function stopDrawingHazards(){
     $("#add-point-button").removeClass('icon-click');
     $("#add-hazard-button").removeClass('icon-click');
     $("#cancel-drawing-button").hide();
-    hazardDrawer.disable();
-    hazardDraw = false;
+    markerDrawer.disable();
+    markerDraw = false;
   }
-
-
-
     function setData() {
-        var enteredDescription = "'"+description.value+"'";
+        var enteredDescription = "'"+descriptionRoute.value+"'";
         //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
-
         var drawing = "";
-
         if (routeDraw) {
             var submittedLine = currentLine.polyline.toGeoJSON();
-
             drawing = "'"+JSON.stringify(submittedLine.geometry)+"'";
-
             //To ensure that drawn routes remain on map after saving, with popup.
-
-            submittedLine.properties.description = description.value;
-            // submittedLine.properties.name = username.value;
+            submittedLine.properties.descriptionRoute = descriptionRoute.value;
+            submittedLine.properties.name = username.value;
             submittedLine.properties.color = currentLine.polyline.options.color;
             submittedLine.properties.weight = currentLine.polyline.options.weight;
             submittedLine.properties.opacity= currentLine.polyline.options.opacity;
-
             submittedRoutes.addData(submittedLine);
-
             routeNum ++;
 			stopRouteDraw();
       $("#cancel-drawing-button").hide();
 			$("#save-drawing-button").hide();
 		};
-
         if(markerDraw){
             drawnMarkers.eachLayer(function (layer) {
                 //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
                 var newData = layer.toGeoJSON();
                 drawing = "'"+JSON.stringify(newData.geometry)+"'";
-
                 // Transfer drawing to the CartoDB layer
                 newData.properties.description = description.value;
-                // newData.properties.name = username.value;
+                newData.properties.name = username.value;
                 submittedData.addData(newData);
             });
 			stopDrawingPoints();
       stopDrawingHazards();
         };
-
         refreshLayer();
         //Ensures that drawn routes stay on the map.
         if(routeDraw){submittedRoutes.eachLayer( function(layer){layer.addTo(map);});};
-
         //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
         var sql = "SELECT "+ config.cartoDBinsertfunction +"(";
             sql += drawing;
             sql += "," + enteredDescription;
-            // sql += "," + enteredUsername + ");";
-
+            // sql += "," + enteredDescription;
+            // sql += "," + enteredDescription;
+            // sql += "," + enteredDescription;
+            sql += "," + enteredUsername + ");";
         // console.log(sql); //For testing
-
         //Sending the data
         $.ajax({
             type: 'POST',
@@ -605,10 +671,8 @@
                 console.log(errorThrown);
             }
           });
-
             dialog.dialog("close");
         };
-
         /*  QGIS layer*/
         var layerOrder = new Array();
         var feature_group = new L.featureGroup([]);
@@ -625,11 +689,8 @@
         }
         map.on('overlayadd', restackLayers);
         layerControl = L.control.layers({},{},{collapsed:false});
-
         // stackLayers();
-
         var deviceIsMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent);
-
 		/*Geolocator, activate only on mobile
 		http://stackoverflow.com/a/26577897/4047679*/
 		if (deviceIsMobile) {
@@ -639,9 +700,7 @@
 				locateOptions: {maxZoom: 20}
 			}).addTo(map);
 		}
-
         function refreshLayer() {
-
             if(markerDraw){
                 map.removeLayer(drawnMarkers);
                 drawnMarkers = new L.FeatureGroup();
@@ -650,15 +709,9 @@
                 drawnRoute = new L.FeatureGroup();
             }
         };
-
     </script>
 
-    <!-- Legend - Existing Bikeways -->
-    <legend id='existing-bikeways-legend' class = 'legend-style'>
-      <p class='legend-elements'>Off-Street Path (Class I)</p>
-      <p class='legend-elements'>Bike Lane (Class II)</p>
-      <p class='legend-elements'>Bike Route (Class III)</p>
-    </legend>
+
 
 
   </body>

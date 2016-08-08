@@ -74,6 +74,26 @@ function addMarker(evt) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function _onMouseMove (e) {
 	var latlng = e.latlng;
 	routeDrawTooltip.updatePosition(latlng);

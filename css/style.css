@@ -102,7 +102,7 @@ iframe {
 
 .legend-elements {
   font-family: 'Pathway Gothic One', sans-serif;
-  font-size: 16px;
+  font-size: 13px;
   color: black;
   text-indent: 55px;
 }
@@ -113,8 +113,8 @@ iframe {
   background-color: white;
   border:0.5px solid #000;
   padding: 0px 10px;
-  border-radius: 2px;
-  font-size: 16px;
+  border-radius: 6px;
+  font-size: 13px;
   padding: 7px;
   margin: 10px;
 }
@@ -123,41 +123,64 @@ iframe {
 .bikeway-legend-class1 {
   position:absolute;
   left: 5%;
-  top: 15%;
+  top: 33%;
   background: #258807;
   width: 30px;
-  height: 5px;
+  height: 3px;
   border-radius: 0%;
 }
 
 .bikeway-legend-class2 {
   position:absolute;
   left: 5%;
-  top: 43%;
+  top: 56%;
   background: #fa9857;
   width: 30px;
-  height: 5px;
+  height: 3px;
   border-radius: 0%;
 }
 
 .bikeway-legend-class3 {
   position:absolute;
   left: 5%;
-  top: 72%;
+  top: 79%;
   background: #9f0909;
   width: 30px;
-  height: 5px;
+  height: 3px;
   border-radius: 0%;
 }
 
-
+/*
 button {
   font-family: 'Pathway Gothic One', sans-serif;
   font-size: 28px;
 
+}*/
+
+
+.input-buttons {
+  background-color: white;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.4), 0 6px 20px 0 rgba(0,0,0,0.4);
+  color: black;
+  border-radius: 6px;
+  border: none;
+  font-size: 16px;
+  text-align: left;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  padding: 10px;
+  margin: 10px;
+  width: 400px;
 }
 
-.btn {
+.input-buttons:hover {
+  background-color: grey;
+  color: white;
+}
+
+
+
+/*.btn {
   background-color: #00BCD4;
   color: white;
   border-radius: 2px;
@@ -189,7 +212,7 @@ button {
   padding: 7px;
   margin: 10px;
   max-width: 300px;
-}
+}*/
 
 #survey {
     background: rgba(0,0,0,0.9);
