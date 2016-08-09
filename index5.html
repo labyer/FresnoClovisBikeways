@@ -52,7 +52,10 @@
           <form>
             <fieldset style="border: none;">
               <ul style="list-style-type: none; padding-left: 0px">
-                <li><label for="description">How is this route hazard important to you?</label></li>
+                <input id="routeRadio" type="radio" name="drawingType" onclick="whichRadio(this.value)" value="route"> Route
+                <input id="poiRadio" type="radio" name="drawingType" onclick="whichRadio(this.value)" value="poi"> Destination
+                <input id="hazardRadio" type="radio" name="drawingType" onclick="whichRadio(this.value)" value="hazard"> Hazard
+                <li><label for="description">How is this item important to you?</label></li>
                 <li><textarea type="text" name="description" id="description" rows="3" placeholder="Click here to write" class="text ui-widget-content ui-corner-all"></textarea></li>
               </ul>
               <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
@@ -92,7 +95,7 @@
           <form>
             <fieldset style="border: none;">
               <ul style="list-style-type: none; padding-left: 0px">
-                <li><label for="descriptionHazard">How is this route hazard important to you?</label></li>
+                <li><label for="descriptionHazard">How is this hazard important to you?</label></li>
     			      <li><textarea type="text" name="descriptionHazard" id="descriptionHazard" rows="3" placeholder="Click here to write" class="text ui-widget-content ui-corner-all"></textarea></li>
               </ul>
               <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
@@ -104,31 +107,31 @@
 
     <!-- Interaction buttons template (top left) -->
     <script id="hidden-interaction-buttons-template" type="text/x-custom-template">
-    <div id = "add-route-button">
-      <button type="button" class="input-buttons">
-          <img src="img/LineSwatch_Wide.png">     <b>Draw Preferred Route for Separated Bikeway</b>
-      </button>
-    </div>
-    <div id = "add-point-button">
-      <button type="button" class="input-buttons">
-          <img src="img/POIMarker_Wide.png">    <b>Mark Important Destination</b>
-      </button>
-    </div>
-    <div id = "add-hazard-button">
-      <button type="button" class="input-buttons">
-          <img src="img/WarningMarker_Wide.png">     <b>Mark Hazardous Location</b>
-      </button>
-    </div>
-    <div id = "cancel-drawing-button">
-      <button type="button" class="input-buttons">
-          <img src="img/Cancel_Wide.png"> <b>Cancel Drawing</b>
-      </button>
-    </div>
-    <div id = "save-drawing-button">
-      <button type="button" class="input-buttons">
-          <img src="img/Save_Wide.png"> <b>Save Drawing</b>
-      </button>
-    </div>
+      <div id = "add-route-button">
+        <button type="button" class="input-buttons">
+            <img src="img/LineSwatch_Wide.png">     <b>Draw Preferred Route for Separated Bikeway</b>
+        </button>
+      </div>
+      <div id = "add-point-button">
+        <button type="button" class="input-buttons">
+            <img src="img/POIMarker_Wide.png">    <b>Mark Important Destination</b>
+        </button>
+      </div>
+      <div id = "add-hazard-button">
+        <button type="button" class="input-buttons">
+            <img src="img/WarningMarker_Wide.png">     <b>Mark Hazardous Location</b>
+        </button>
+      </div>
+      <div id = "cancel-drawing-button">
+        <button type="button" class="input-buttons">
+            <img src="img/Cancel_Wide.png"> <b>Cancel Drawing</b>
+        </button>
+      </div>
+      <div id = "save-drawing-button">
+        <button type="button" class="input-buttons">
+            <img src="img/Save_Wide.png"> <b>Save Drawing</b>
+        </button>
+      </div>
       <div id='existing-bikeways-legend'>
         <legend class = 'legend-style'>
           <label style='margin-left: 5px'><font size="2">Existing Bikeways</label>
@@ -191,7 +194,7 @@
         }).addTo(map);
 
 
-        var drawnPOIMarkers;
+        // var drawnPOIMarkers;
           // drawnPOIMarkers = L.geoJson(submittedData, {
           //   pointToLayer: function(feature, latlng) {
           //     var POIMarkerIcon = new L.icon({
@@ -235,7 +238,7 @@
         //Empty to store drawn routes after they are submitted
         var submittedRoutes = new L.geoJson( false, {
             onEachFeature: function (feature, layer) {
-                layer.bindPopup('<b>' + 'Routes: ' + '<b>'+ feature.properties.descriptionRoute );
+                layer.bindPopup('<b>' + 'Routes: ' + '<b>'+ feature.properties.description );
             },
             style: function(feature) {
                 /* Styles the submitted route drawing with the same properties as the drawn route as defined by line(id)  in definitions.js */
@@ -247,9 +250,7 @@
             }
         }).addTo(map);
         var drawnMarkers = new L.FeatureGroup();
-        var drawnHazards = new L.FeatureGroup();
 		map.addLayer(drawnMarkers);
-    map.addLayer(drawnHazards);
         var drawnRoute = new L.FeatureGroup();
         var drawControl = new L.Control.Draw({
             draw : {
@@ -276,13 +277,7 @@
         map.on('draw:created', function (e) {
             var layer = e.layer;
             drawnMarkers.addLayer(layer);
-            dialogPOI.dialog( "open" );
-        });
-        hazardDrawer =  new L.Draw.Marker(map, drawControl.options.marker);
-        map.on('draw:created', function (e) {
-            var layer = e.layer;
-            drawnHazards.addLayer(layer);
-            dialogHazard.dialog( "open" );
+            dialog.dialog( "open" );
         });
 		/*#left-bar buttons*/
         /* button that triggers adding a destination */
@@ -299,7 +294,7 @@
         $("#add-hazard-button").on("click", function(event){
 			       event.stopPropagation();
 			       if(validInput===false){
-			   	        dialogGlobal.data('clicked','add-hazard-button').dialogHazard( "open" );
+			   	        dialogGlobal.data('clicked','add-hazard-button').dialog( "open" );
               }
               else if(validInput){
 				            drawingHazards();
@@ -358,10 +353,19 @@
 					dialogGlobal.dialog("close");
 					validInput = true;
 					if ($(this).data('clicked')=='add-route-button') {
-						drawingRoute();
+            $("#routeRadio").prop("checked", true);
+            $("#poiRadio").prop("checked", false);
+            $("#hazardRadio").prop("checked", false);
+            drawingRoute();
 					} else if ($(this).data('clicked')=='add-point-button') {
+            $("#routeRadio").prop("checked", false);
+            $("#poiRadio").prop("checked", true);
+            $("#hazardRadio").prop("checked", false);
 						drawingPoints();
 					} else if($(this).data('clicked')=='add-hazard-button'){
+            $("#routeRadio").prop("checked", false);
+            $("#poiRadio").prop("checked", false);
+            $("#hazardRadio").prop("checked", true);
 						drawingHazards();
 					}
 			    } else {
@@ -392,12 +396,30 @@
 					dialogGlobal.dialog("close");
 					validInput = true;
 					if($(this).data('clicked')=='add-route-button'){
+            $("#routeRadio").prop("checked", true);
+            $("#poiRadio").prop("checked", false);
+            $("#hazardRadio").prop("checked", false);
+            document.getElementById("routeRadio").disabled = true;
+            document.getElementById("poiRadio").disabled = true;
+            document.getElementById("hazardRadio").disabled = true;
 						drawingRoute();
 					}
 					else if($(this).data('clicked')=='add-point-button'){
+            $("#routeRadio").prop("checked", false);
+            $("#poiRadio").prop("checked", true);
+            $("#hazardRadio").prop("checked", false);
+            document.getElementById("routeRadio").disabled = true;
+            document.getElementById("poiRadio").disabled = true;
+            document.getElementById("hazardRadio").disabled = true;
 						drawingPoints();
 					}
           else if($(this).data('clicked')=='add-hazard-button'){
+            $("#routeRadio").prop("checked", false);
+            $("#poiRadio").prop("checked", false);
+            $("#hazardRadio").prop("checked", true);
+            document.getElementById("routeRadio").disabled = true;
+            document.getElementById("poiRadio").disabled = true;
+            document.getElementById("hazardRadio").disabled = true;
 						drawingHazards();
 					}
 				}
@@ -412,63 +434,10 @@
 
 
 
-        // /* dialog that appears after finishing a drawing */
-        //   dialog = $( "#dialog" ).dialog({
-        //       autoOpen: false,
-        //       height: 300,
-        //       width: 350,
-        //       modal: true,
-        //       position: {
-        //         my: "center center",
-        //         at: "center center",
-        //         of: "#map"
-        //     },
-        //       buttons: [{
-    		// 	  text: "Save Input",
-    		// 	  click : function(){
-    		// 		setData();
-    		// 	  },
-    		// 	  id: "dialogSaveInput"
-    		//   },
-    		// 	  {text: "Cancel",
-    		// 	  click: function() {
-        //             if(markerDraw){
-        //                 refreshLayer();
-        //                 markerDrawer.enable();
-        //             }
-        //             dialog.dialog("close");
-        //         }
-        //       }],
-        //       close: function() {
-        //         if(markerDraw){
-        //                 refreshLayer();
-        //                 markerDrawer.enable();
-        //         }
-        //       }
-        //       , open: function() {
-        //           var _title = "Tell us about this";
-        //           if (markerDraw){
-        //               _title += " location";
-        //           }
-        //           else if (routeDraw){
-        //               _title += " route";
-        //           }
-        //           $( "#dialog" ).dialog( "option", "title",_title);
-    		// 	  $( "#dialog" ).keydown(function(e) {
-    		// 			  if (e.keyCode == $.ui.keyCode.ENTER) {
-    		// 				$("#dialogSaveInput").trigger("click");
-    		// 			  }
-    		// 			});
-        //       }
-        // });
-
-
-
-
 
 
         /* dialog that appears after finishing a route */
-          dialogRoute = $( "#dialogRoute" ).dialog({
+          dialog = $( "#dialog" ).dialog({
               autoOpen: false,
               height: 300,
               width: 350,
@@ -479,11 +448,11 @@
                 of: "#map"
             },
               buttons: [{
-            text: "Save Route",
+            text: "Save Input",
             click : function(){
             setData();
             },
-            id: "dialogRouteSaveInput"
+            id: "dialogSaveInput"
           },
             {text: "Cancel",
             click: function() {
@@ -491,21 +460,13 @@
                         refreshLayer();
                         markerDrawer.enable();
                     }
-                    else if(hazardDraw){
-                      refreshLayer();
-                      hazardDrawer.enable();
-                    }
-                    dialogRoute.dialog("close");
+                    dialog.dialog("close");
                 }
               }],
               close: function() {
                 if(markerDraw){
                         refreshLayer();
                         markerDrawer.enable();
-                }
-                else if(hazardDraw){
-                        refreshLayer();
-                        hazardDrawer.enable();
                 }
               }
               , open: function() {
@@ -516,77 +477,10 @@
                   else if (routeDraw){
                       _title += " route";
                   }
-                  else if (hazardDraw){
-                    _title += " hazard";
-                  }
-                  $( "#dialogRoute" ).dialog( "option", "title",_title);
-            $( "#dialogRoute" ).keydown(function(e) {
+                  $( "#dialog" ).dialog( "option", "title",_title);
+            $( "#dialog" ).keydown(function(e) {
                 if (e.keyCode == $.ui.keyCode.ENTER) {
-                $("#dialogRouteSaveInput").trigger("click");
-                }
-              });
-              }
-        });
-
-
-
-
-        /* dialog that appears after finishing a poi */
-          dialogPOI = $( "#dialogPOI" ).dialog({
-              autoOpen: false,
-              height: 300,
-              width: 350,
-              modal: true,
-              position: {
-                my: "center center",
-                at: "center center",
-                of: "#map"
-            },
-              buttons: [{
-            text: "Save Destination",
-            click : function(){
-            setData();
-            },
-            id: "dialogPOISaveInput"
-          },
-            {text: "Cancel",
-            click: function() {
-                    if(markerDraw){
-                        refreshLayer();
-                        markerDrawer.enable();
-                    }
-                    else if(hazardDraw){
-                      refreshLayer();
-                      hazardDrawer.enable();
-                    }
-                    dialogPOI.dialog("close");
-                }
-              }],
-              close: function() {
-                if(markerDraw){
-                        refreshLayer();
-                        markerDrawer.enable();
-                }
-                else if(hazardDraw){
-                        refreshLayer();
-                        hazardDrawer.enable();
-                }
-              }
-              , open: function() {
-                  var _title = "Tell us about this";
-                  if (markerDraw){
-                      _title += " location";
-                  }
-                  else if (routeDraw){
-                      _title += " route";
-                  }
-                  else if (hazardDraw){
-                    _title += " hazard";
-                  }
-                  $( "#dialogPOI" ).dialog( "option", "title",_title);
-            $( "#dialogPOI" ).keydown(function(e) {
-                if (e.keyCode == $.ui.keyCode.ENTER) {
-                $("#dialogPOISaveInput").trigger("click");
+                $("#dialogSaveInput").trigger("click");
                 }
               });
               }
@@ -599,66 +493,8 @@
 
 
 
-        /* dialog that appears after finishing a poi */
-          dialogHazard = $( "#dialogHazard" ).dialog({
-              autoOpen: false,
-              height: 300,
-              width: 350,
-              modal: true,
-              position: {
-                my: "center center",
-                at: "center center",
-                of: "#map"
-            },
-              buttons: [{
-            text: "Save Hazard",
-            click : function(){
-            setData();
-            },
-            id: "dialogHazardSaveInput"
-          },
-            {text: "Cancel",
-            click: function() {
-                    if(markerDraw){
-                        refreshLayer();
-                        markerDrawer.enable();
-                    }
-                    else if(hazardDraw){
-                      refreshLayer();
-                      hazardDrawer.enable();
-                    }
-                    dialogPOI.dialog("close");
-                }
-              }],
-              close: function() {
-                if(markerDraw){
-                        refreshLayer();
-                        markerDrawer.enable();
-                }
-                else if(hazardDraw){
-                        refreshLayer();
-                        hazardDrawer.enable();
-                }
-              }
-              , open: function() {
-                  var _title = "Tell us about this";
-                  if (markerDraw){
-                      _title += " location";
-                  }
-                  else if (routeDraw){
-                      _title += " route";
-                  }
-                  else if (hazardDraw){
-                    _title += " hazard";
-                  }
-                  $( "#dialogHazard" ).dialog( "option", "title",_title);
-            $( "#dialogHazard" ).keydown(function(e) {
-                if (e.keyCode == $.ui.keyCode.ENTER) {
-                $("#dialogHazardSaveInput").trigger("click");
-                }
-              });
-              }
-        });
+
+
 
 
 
@@ -701,6 +537,12 @@
 		$("#add-point-button").removeClass('icon-click');
     $("#add-hazard-button").removeClass('icon-click');
 		$("#cancel-drawing-button").show();
+    $("#routeRadio").prop("checked", true);
+    $("#poiRadio").prop("checked", false);
+    $("#hazardRadio").prop("checked", false);
+    document.getElementById("routeRadio").disabled = true;
+    document.getElementById("poiRadio").disabled = true;
+    document.getElementById("hazardRadio").disabled = true;
 		markerDrawer.disable();
 		refreshLayer();
 		routeDraw = true;
@@ -721,6 +563,12 @@
     $("#add-point-button").addClass('icon-click');
     $("#add-hazard-button").removeClass('icon-click');
 		$("#cancel-drawing-button").show();
+    $("#routeRadio").prop("checked", false);
+    $("#poiRadio").prop("checked", true);
+    $("#hazardRadio").prop("checked", false);
+    document.getElementById("routeRadio").disabled = true;
+    document.getElementById("poiRadio").disabled = true;
+    document.getElementById("hazardRadio").disabled = true;
 		markerDrawer.enable();
 		markerDraw = true;
 	}
@@ -736,6 +584,12 @@
       $("#add-hazard-button").addClass('icon-click');
       $("#add-point-button").removeClass('icon-click');
       $("#cancel-drawing-button").show();
+      $("#routeRadio").prop("checked", false);
+      $("#poiRadio").prop("checked", false);
+      $("#hazardRadio").prop("checked", true);
+      document.getElementById("routeRadio").disabled = true;
+      document.getElementById("poiRadio").disabled = true;
+      document.getElementById("hazardRadio").disabled = true;
       markerDrawer.enable();
       markerDraw = true;
     }
@@ -754,15 +608,25 @@
     markerDraw = false;
   }
 
+
+
     function setData() {
-        var enteredDescription = "'"+descriptionRoute.value+"'";
+        var enteredDescription = "'"+description.value+"'";
+        // if (routeRadio.checked == true){
+        //   var drawingType = "0";
+        // } else if (poiRadio.checked == true){
+        //   var drawingType = "1";
+        // } else if (hazardRadio.checked == true){
+        //   var drawingType = "2";
+        // }
         //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
         var drawing = "";
         if (routeDraw) {
             var submittedLine = currentLine.polyline.toGeoJSON();
             drawing = "'"+JSON.stringify(submittedLine.geometry)+"'";
             //To ensure that drawn routes remain on map after saving, with popup.
-            submittedLine.properties.route = descriptionRoute.value;
+            submittedLine.properties.description = description.value;
+            // submittedLine.properties.drawingType = drawingType.value;
             submittedLine.properties.name = username.value;
             submittedLine.properties.color = currentLine.polyline.options.color;
             submittedLine.properties.weight = currentLine.polyline.options.weight;
@@ -779,7 +643,8 @@
                 var newData = layer.toGeoJSON();
                 drawing = "'"+JSON.stringify(newData.geometry)+"'";
                 // Transfer drawing to the CartoDB layer
-                newData.properties.poi = descriptionPOI.value;
+                newData.properties.description = description.value;
+                // newData.properties.drawingtype = drawingtype.value;
                 newData.properties.name = username.value;
                 submittedData.addData(newData);
             });
@@ -793,9 +658,7 @@
         var sql = "SELECT "+ config.cartoDBinsertfunction +"(";
             sql += drawing;
             sql += "," + enteredDescription;
-            // sql += "," + enteredDescription;
-            // sql += "," + enteredDescription;
-            // sql += "," + enteredDescription;
+            // sql += "," + drawingType;
             sql += "," + enteredUsername + ");";
         // console.log(sql); //For testing
         //Sending the data
@@ -813,9 +676,7 @@
                 console.log(errorThrown);
             }
           });
-            dialogRoute.dialog("close");
-            dialogPOI.dialog("close");
-            dialogHazard.dialog("close");
+            dialog.dialog("close");
         };
         /*  QGIS layer*/
         var layerOrder = new Array();
