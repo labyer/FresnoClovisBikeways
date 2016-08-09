@@ -21,7 +21,7 @@ img {
 
 .type1 {
     display: block;
-    box-sizing: border-box;
+    /*box-sizing: border-box;*/
     font-size: .6125rem;
     width: 3.25rem;
     line-height: 3.25rem;
@@ -58,7 +58,9 @@ img {
 }
 
 .icon-click {
-    background: rgba(10,210,150,1);
+    background:none;
+    background-color: #1b75bb;
+    border-radius: 6px;
 }
 
 #add-point {
@@ -166,16 +168,24 @@ button {
   border: none;
   font-size: 16px;
   text-align: left;
-  -webkit-transition-duration: 0.4s; /* Safari */
+  -webkit-transition-duration: 0.4s;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
   transition-duration: 0.4s;
   padding: 10px;
   margin: 10px;
   width: 430px;
+  height:60px;
 }
 
 .input-buttons:hover {
   background-color: grey;
   color: white;
+}
+
+.input-buttons:click {
+  background-color: grey;
+  color: white;
+  border: none;
 }
 
 
