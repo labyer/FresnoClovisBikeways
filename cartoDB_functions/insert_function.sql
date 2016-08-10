@@ -15,7 +15,7 @@ BEGIN
     --Convert the GeoJSON to a geometry type for insertion.
     _the_geom := ST_SetSRID(ST_GeomFromGeoJSON(_geojson),4326);
 
-    EXECUTE ' INSERT INTO table_2016_08_09 (the_geom, description, drawingType, name)
+    EXECUTE ' INSERT INTO table_16_093 (the_geom, description, drawingType, name)
             VALUES ($1, $2, $3, $4)
             ' USING _the_geom, _description, _drawingType, _name;
 
